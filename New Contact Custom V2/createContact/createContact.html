@@ -1,0 +1,160 @@
+<template>
+<lightning-card title="Create Contact" icon-name="standard:contact">
+    <div class="slds-m-around_medium">           
+        <lightning-input label="First Name" onchange={handleFirstNameChange} class="slds-m-bottom_x-small"></lightning-input>
+        <lightning-input label="Last Name" onchange={handleLastNameChange} class="slds-m-bottom_x-small"></lightning-input>
+        <template if:false={selectedRecord}>
+        <div>
+            <c-search-component 
+                onchange={handleOnchange}>
+            </c-search-component>
+        </div>
+    </template>
+    <div >
+        <template if:true={error}>
+            <template if:true={error.details}>
+                <template if:true={error.details.body}>
+                    {error.details.body.message}
+                </template>
+            </template>
+        </template>
+    </div>
+    <div style="position: absolute;width: 90%;background-color: #d9d9d9;z-index:2;cursor: pointer;">
+        <template if:false={selectedRecord}>
+            <template if:true={records}>
+                <template for:each={records} for:item="record">
+                    <c-record-list key={record.Id} record={record} 
+                        onselect={handleSelect} iconname={iconname}
+                        fieldname={searchfield}>
+                    </c-record-list>
+                </template>
+                <div class="slds-grid slds-wrap 
+                        slds-dropdown_length-with-icon-7 
+                        slds-dropdown_fluid
+                        slds-p-left_small"
+                 >
+                <div class="slds-col slds-size_4-of-4 ">
+                    <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+                        <li role="presentation" class="slds-listbox__item">
+                            <div class="slds-media slds-listbox__option 
+                                                        slds-listbox__option_entity 
+                                                        slds-listbox__option_has-meta" 
+                                                        role="option"
+                                                        onclick={openModel}>
+                                <span class="slds-media__figure slds-listbox__option-icon">
+                                    <lightning-icon icon-name="action:new" size="xx-small"></lightning-icon>
+                                </span>
+                                <span class="slds-media__body" 
+                                    style="padding-top: 9px;font-weight: 600;">
+                                    <span class="slds-listbox__option-text 
+                                                                 slds-listbox__option-text_entity">
+                                        Add Account
+                                    </span>
+                                </span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            </template>            
+        </template>
+        <template if:true={openmodel}>
+            <div class="demo-only" style="height: 640px;">
+                <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                    <div class="slds-modal__container">
+                        <header class="slds-modal__header">
+                            <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={closeModal}>
+                                <lightning-icon icon-name="utility:close" size="medium">
+                                </lightning-icon>
+                                <span class="slds-assistive-text">Close</span>
+                            </button>
+                            <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">New Account</h2>
+                        </header>
+                        <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">                            
+                                <lightning-card>
+                                    <div class="slds-m-around_medium">           
+                                        <lightning-input label="Name" onchange={handleNameChange} class="slds-m-bottom_x-small"></lightning-input>
+                                        <lightning-input label="Phone" onchange={handlePhoneChange} class="slds-m-bottom_x-small"></lightning-input>            
+                                </div>
+                            </lightning-card>                            
+                        </div>
+                        <footer class="slds-modal__footer">
+                            <lightning-button label="Cancel" variant="neutral" onclick={closeModal}></lightning-button>&nbsp;&nbsp;&nbsp;&nbsp;
+                            <lightning-button label="Save" variant="brand" onclick={createAccount}></lightning-button>
+                        </footer>
+                    </div>
+                </section>
+                <div class="slds-backdrop slds-backdrop_open"></div>
+            </div>
+            </template>
+        <!--<template if:false={selectedRecord}>
+        </template>-->
+    </div>
+    <div>
+        <template if:true={selectedRecord}>
+            <div>Account</div>  
+            <lightning-layout class="slds-box slds-box_xx-small">
+                <lightning-layout-item>
+                    <div class="slds-media">
+                        <div class="slds-media__figure">
+                            <lightning-icon icon-name="standard:account" size="small"></lightning-icon>
+                        </div>
+                        <div class="slds-media__body">                                        
+                            <div class="slds-align_absolute-center">{accountName}</div>
+                        </div>
+                        <div class="slds-media__figure slds-media__figure_reverse"></div>
+                    </div>
+                </lightning-layout-item>
+                <lightning-layout-item style="padding-left:270px;">
+                    <lightning-button-group>            
+                        <lightning-button-icon variant="border" type="button" icon-name="utility:close" onclick={handleRemove} size="small"></lightning-button-icon>            
+                    </lightning-button-group>
+                </lightning-layout-item>
+            </lightning-layout>
+           <!-- <div class="slds-combobox__form-element slds-input-has-icon 
+                            slds-input-has-icon_left-right" role="none">
+                    <span class="slds-icon_container
+                                slds-icon-standard-account 
+                                slds-combobox__input-entity-icon" title="Account">
+                        <lightning-icon icon-name={iconname} ></lightning-icon>
+                    </span>
+
+                    <lightning-input
+                    label="Account" value={selectedRecord.Name} type="test"
+                    placeholder="type text here" disabled>
+                    </lightning-input>
+
+                    <input
+                            class="slds-input slds-combobox__input
+                            slds-combobox__input-value" 
+                            id="combobox-id-5" aria-controls="listbox-id-5" 
+                            autocomplete="off" role="textbox" type="text" 
+                            placeholder="Select an Option" readonly=""
+                            value={selectedRecord.Name}
+                            disabled
+                            />
+                            <lightning-button-icon class="sicon_container slds-input__icon slds-input__icon_right" icon-name="utility:close" variant="bare" onclick={handleRemove}></lightning-button-icon>
+                    <button class="sicon_container slds-button slds-button_icon 
+                                    slds-input__icon slds-input__icon_right" 
+                            title="Remove selected option"
+                            onclick={handleRemove}>
+                        <lightning-icon icon-name="utility:close" size="small">
+
+                        </lightning-icon>
+                        <span class="slds-assistive-text">Remove selected option</span>
+                    </button>
+                </div>-->
+            <!--<lightning-layout>
+                <lightning-layout-item>
+                    <lightning-pill label={selectedRecord.Name} onremove={handleRemove}>
+                        <lightning-icon icon-name={iconname}></lightning-icon>
+                    </lightning-pill>
+                </lightning-layout-item>
+            </lightning-layout>-->
+        </template>
+        <br/>
+    </div>
+        <lightning-button label="Save" variant="brand" onclick={createContact}></lightning-button>
+    </div>
+</lightning-card>
+</template> 
